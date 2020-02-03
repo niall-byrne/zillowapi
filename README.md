@@ -34,6 +34,7 @@ Navigate to the redoc endpoint:
 ## Loading CSV Content
 
 Copy the test data to the Git repository folder you cloned, and it will be accessible inside the container.
+- `./manage.py load_csv [filename]`
 
 ## CLI Reference
 The CLI is enabled by default inside the container, and is also available on the host machine.
