@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -eo pipefail
+
+main() {
+
+  local_branch="$(git rev-parse --abbrev-ref HEAD)"
+  protected_branches="^(master)"
+
+  if [[ ! ${local_branch} =~ ${protected_branches} ]]; then
+        exit 0
+  fi
+
+  bash scripts/commander.sh lint-validate
+  bash scripts/commander.sh sectest
+  bash scripts/commander.sh test
+  shellcheck -x scripts/*.sh
+  shellcheck -x scripts/common/*.sh
+
+  if [[ -n "$(git diff)" ]]; then
+
+    git status
+
+    exec < /dev/tty
+    echo -e "\nWARNING: You have uncommitted changes!"
+    read -r -p "Type 'yes' to confirm you wish to proceed with this commit: " confirm
+    [[ ${confirm} != "yes" ]] && echo 'ABORTED' && exit 127
+
+    exit 0
+
+  fi
+
+}
+
+main
