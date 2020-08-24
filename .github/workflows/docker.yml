@@ -1,6 +1,9 @@
 name: zillowapi Automation
 
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: "0 6 * * 1"
 
 jobs:
   build:
@@ -24,3 +27,9 @@ jobs:
     - name: Run Unit Tests
       run: |
         docker-compose exec -T zillowapi bash -l -c 'scripts/commander.sh test coverage'
+    - name: Report Job Status
+      if: ${{ failure() }}
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"restaurant_recommender: build has failed!"}' "${WEBHOOK_URL}"
+      env:
+        WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
